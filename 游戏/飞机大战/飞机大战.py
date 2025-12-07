@@ -8,9 +8,30 @@ sys.stdout.reconfigure(encoding='utf-8')
 # 初始化 Pygame
 pygame.init()
 
-# 加载背景音乐
-pygame.mixer.music.load("飞机大战\music\ground.mp3")
-pygame.mixer.music.play(-1) # 循环播放
+# 音效资源定义（符合项目规范中的音效资源管理规范）
+shoot_sound = None
+explosion_sound = None
+pickup_sound = None
+background_music = None
+
+# 加载背景音乐和音效
+try:
+    background_music = "游戏\\飞机大战\\music\\ground.mp3"
+    pygame.mixer.music.load(background_music)
+    pygame.mixer.music.play(-1) # 循环播放
+    
+    # 加载音效文件
+    shoot_sound = pygame.mixer.Sound("游戏\\飞机大战\\music\\shoot_sound.wav")
+    explosion_sound = pygame.mixer.Sound("游戏\\飞机大战\\music\\explosion_sound.wav")
+    pickup_sound = pygame.mixer.Sound("游戏\\飞机大战\\music\\pickup_sound.wav")
+    
+    # 设置音效音量
+    shoot_sound.set_volume(0.3)
+    explosion_sound.set_volume(0.4)
+    pickup_sound.set_volume(0.5)
+except pygame.error as e:
+    print(f"无法加载音频文件: {e}")
+    print("游戏将继续运行，但没有音效")
 
 # 游戏窗口设置
 WIDTH, HEIGHT = 400,600
@@ -30,6 +51,32 @@ def read_high_score():
 def save_high_score(score):
     with open(HIGH_SCORE, 'w') as file:
         file.write(str(score))
+
+# 开始界面函数
+def show_start_screen():
+    font = pygame.font.SysFont('simhei', 36)
+    title_font = pygame.font.SysFont('simhei', 48)
+    
+    title_text = title_font.render("太空防御者", True, WHITE)
+    start_text = font.render("按任意键开始游戏", True, GREEN)
+    controls_text = pygame.font.SysFont('simhei', 24).render("方向键移动，空格键射击，P键暂停", True, YELLOW)
+    
+    screen.fill(BLACK)
+    screen.blit(title_text, (WIDTH // 2 - title_text.get_width() // 2, HEIGHT // 4))
+    screen.blit(start_text, (WIDTH // 2 - start_text.get_width() // 2, HEIGHT // 2))
+    screen.blit(controls_text, (WIDTH // 2 - controls_text.get_width() // 2, HEIGHT * 3 // 4))
+    
+    pygame.display.flip()
+    
+    # 等待用户按键
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYUP:
+                waiting = False
 
 # 颜色定义
 BLACK = (0, 0, 0)
@@ -76,6 +123,9 @@ class Player:
             self.y += self.speed
             
     def shoot(self):
+        # 播放射击音效（如果可用）
+        if shoot_sound is not None:
+            shoot_sound.play()
         return Bullet(self.x + self.width // 2 - 2, self.y, -10, BLUE)
     
     def take_damage(self, amount):
@@ -201,6 +251,9 @@ class Explosion:
 
 # 游戏主函数
 def main():
+    # 显示开始界面
+    show_start_screen()
+    
     clock = pygame.time.Clock()
     player = Player()
     bullets = []
@@ -223,6 +276,7 @@ def main():
 
     running = True
     game_over = False
+    paused = False
     
     while running:
         # 事件处理
@@ -235,9 +289,14 @@ def main():
                 elif event.key == pygame.K_r and game_over:
                     # 重新开始游戏
                     return main()
+                elif event.key == pygame.K_ESCAPE:
+                    # ESC键退出游戏
+                    running = False
+                elif event.key == pygame.K_p and not game_over:  # P键暂停/继续游戏
+                    paused = not paused
         pygame.display.update()
         
-        if not game_over:
+        if not game_over and not paused:
             # 玩家移动
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:
@@ -263,13 +322,17 @@ def main():
                     
             # 生成敌人 - 难度随等级提升
             enemy_spawn_timer += 1
-            if enemy_spawn_timer >= max(10, enemy_spawn_delay - player.level * 2):
+            # 根据玩家等级调整敌人生成速度，但不低于一定限度
+            spawn_delay = max(15, enemy_spawn_delay - player.level * 3)
+            if enemy_spawn_timer >= spawn_delay:
                 enemy_spawn_timer = 0
                 enemies.append(Enemy(player.level))
 
-            #生成血包
+            #生成血包 - 每隔一段时间生成一个血包
             medical_spawn_timer += 1
-            if medical_spawn_timer >= max(10, medical_spawn_delay - player.level * 2):
+            # 血包生成间隔随玩家等级略微减少，但不低于一定限度
+            medical_delay = max(200, medical_spawn_delay - player.level * 5)
+            if medical_spawn_timer >= medical_delay:
                 medical_spawn_timer = 0
                 medicals.append(Medical(player.level))
             
@@ -283,6 +346,9 @@ def main():
                     medical.x + medical.width > player.x and
                     medical.y < player.y + player.height):
                     player.health = min(100, player.health + medical.recover)
+                    # 播放拾取血包音效（如果可用）
+                    if pickup_sound is not None:
+                        pickup_sound.play()
                     medicals.remove(medical)
                     continue
 
@@ -322,6 +388,9 @@ def main():
                         bullet.y + bullet.height > enemy.y):
                         enemy.health -= 1
                         if enemy.health <= 0:
+                            # 播放爆炸音效（如果可用）
+                            if explosion_sound is not None:
+                                explosion_sound.play()
                             player.increase_score(10 * player.level)
                             explosions.append(Explosion(enemy.x + enemy.width // 2, enemy.y + enemy.height // 2))
                             enemies.remove(enemy)
@@ -355,7 +424,7 @@ def main():
                     new_high_score = True
         
         # 绘制背景
-        background_img = pygame.image.load("飞机大战\image\ground.jpg").convert()
+        background_img = pygame.image.load("游戏\飞机大战\image\ground.jpg").convert()
         screen.blit(background_img, (0, 0))
         
         # 绘制玩家
@@ -402,20 +471,34 @@ def main():
             font = pygame.font.SysFont('simhei', 15)
             game_over_text = font.render("游戏结束!", True, RED)
             final_score_text = font.render(f"最终分数: {player.score}", True, WHITE)
-            #restart_text = font.render("按 R 键重新开始", True, GREEN)
-
+            
             if new_high_score:
                 new_high_text = font.render("新纪录! 恭喜!", True, YELLOW)
-                screen.blit(new_high_text, (WIDTH // 2 - new_high_text.get_width() // 2, HEIGHT // 2 + 100))
+                screen.blit(new_high_text, (WIDTH // 2 - new_high_text.get_width() // 2, HEIGHT // 2 + 80))
+            
+            restart_text = font.render("按 R 键重新开始 或 按 ESC 键退出", True, GREEN)
             
             screen.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2 - 50))
             screen.blit(final_score_text, (WIDTH // 2 - final_score_text.get_width() // 2, HEIGHT // 2))
-            #screen.blit(restart_text, (WIDTH // 2 - restart_text.get_width() // 2, HEIGHT // 2 + 50))
+            screen.blit(restart_text, (WIDTH // 2 - restart_text.get_width() // 2, HEIGHT // 2 + 50))
 
         # 绘制控制说明
         font = pygame.font.SysFont('simhei', 10)
-        controls_text = font.render("方向键移动，空格键射击", True, WHITE)
+        controls_text = font.render("方向键移动，空格键射击，P键暂停", True, WHITE)
         screen.blit(controls_text, (WIDTH - controls_text.get_width() - 10, HEIGHT - 30))
+        
+        # 如果游戏暂停，显示暂停提示
+        if paused:
+            pause_overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+            pause_overlay.fill((0, 0, 0, 128))
+            screen.blit(pause_overlay, (0, 0))
+            
+            pause_font = pygame.font.SysFont('simhei', 36)
+            pause_text = pause_font.render("游戏暂停", True, WHITE)
+            screen.blit(pause_text, (WIDTH // 2 - pause_text.get_width() // 2, HEIGHT // 2 - 50))
+            
+            continue_text = pygame.font.SysFont('simhei', 24).render("按 P 键继续", True, GREEN)
+            screen.blit(continue_text, (WIDTH // 2 - continue_text.get_width() // 2, HEIGHT // 2 + 10))
         
         pygame.display.flip()
         clock.tick(60)
