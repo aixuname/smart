@@ -1,0 +1,60 @@
+# ============================================================
+# 第八章：循环
+# 目标：让程序重复做一件事
+# ============================================================
+
+# ---- 1. for 循环 ----
+# 一个一个取出可迭代对象里的元素
+for i in [1, 2, 3, 4, 5]:
+    print(i)
+
+# 配合 range() 生成数字序列
+# range(n)     生成 0 到 n-1
+# range(a, b)  生成 a 到 b-1
+print("--- range 示例 ---")
+for i in range(3):          # 0, 1, 2
+    print(i)
+
+for i in range(2, 6):       # 2, 3, 4, 5
+    print(i)
+
+# 遍历字符串
+for char in "Python":
+    print(char)
+
+# ---- 2. while 循环 ----
+# 只要条件为真，就一直重复
+count = 0
+while count < 3:
+    print(f"第 {count} 次")
+    count += 1            # 每次让 count 加 1，否则会死循环！
+
+# ---- 3. break 和 continue ----
+# break     ：立即结束整个循环
+# continue  ：跳过本次，进入下一轮
+
+print("--- break ---")
+for i in range(10):
+    if i == 3:
+        break             # 到 3 就停止
+    print(i)              # 输出 0 1 2
+
+print("--- continue ---")
+for i in range(5):
+    if i == 2:
+        continue          # 跳过 2
+    print(i)              # 输出 0 1 3 4
+
+# ---- 4. 循环嵌套 ----
+# 打印乘法口诀表（外层循环控制行，内层循环控制列）
+for i in range(1, 10):
+    for j in range(1, i + 1):
+        print(f"{j}×{i}={i*j}", end="\t")   # end 让 print 不换行
+    print()               # 一行打完换行
+
+# ---- 5. for-else ----
+# 如果循环正常结束（没被 break 打断），就执行 else
+for i in range(3):
+    print(i)
+else:
+    print("循环正常结束")
