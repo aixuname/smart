@@ -4,42 +4,16 @@
 # ============================================================
 
 # ============================================================
-# 【安装教程：Anaconda】
+# 【开始前：配置 Anaconda】
 # ============================================================
-# 为什么推荐 Anaconda？
-#   - 它自带 Python，不用单独装
-#   - 自带 Jupyter Notebook / Spyder 等工具，适合新手
-#   - 自带 numpy、pandas、matplotlib 等常用库，省去一个个安装
+# 请先阅读同一目录中的《ch01_Anaconda安装与环境配置.md》：
+#   1. 安装 Anaconda
+#   2. 初始化终端和处理环境变量
+#   3. 创建并激活 smartclub 课程环境
+#   4. 配置清华大学镜像源
 #
-# ---- 安装步骤（Windows）----
-# 1. 打开官网：https://www.anaconda.com/download
-# 2. 下载 Windows 版安装包（.exe 文件，一般几百 MB）
-# 3. 双击安装包，一路点"下一步"（Next）
-# 4. 在 "Advanced Options"（高级选项）页面，建议勾选
-#    "Add Anaconda to my PATH environment variable"（加入环境变量）
-#    —— 这样以后在任意终端都能直接用 python 命令
-#    （如果没勾选，也没关系，可以用 Anaconda Prompt 代替）
-# 5. 点 Install 等待安装完成（可能要几分钟）
-#
-# ---- 验证安装成功 ----
-# 打开终端（Win 键 + 输入 cmd 回车，或直接用 Anaconda Prompt）
-# 输入下面命令并回车：
-#     python --version
-# 如果显示类似 "Python 3.11.x" 就说明装好了
-# 再输入：
-#     conda --version
-# 能显示版本号说明 Anaconda 可用
-#
-# ---- 运行 Python 程序 ----
-# 方法一：在终端里
-#     先 cd 到文件所在目录，然后执行：
-#         python ch01_入门与环境.py
-# 方法二：用 VS Code（推荐）
-#     装好 VS Code + Python 扩展，打开 .py 文件，点右上角运行按钮
-#
-# ---- 小提示 ----
-# Anaconda 自带一个叫 Jupyter Notebook 的工具，适合边学边做笔记，
-# 在终端输入 jupyter notebook 就能启动。
+# 配置完成后，在已激活 smartclub 环境的终端中运行：
+#     python ch01_入门与环境.py
 
 # ============================================================
 # 【开始写代码】
