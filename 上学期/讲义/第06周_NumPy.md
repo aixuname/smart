@@ -1,6 +1,6 @@
 # 第 6 周：NumPy 基础
 
-> 配套代码：[ch10_numpy入门.py](../Python基础/ch10_numpy入门.py)
+> 配套代码：[第06周_numpy入门.py](../代码/第06周_numpy入门.py)
 
 [讲义目录](./README.md) · [← 上一周：第 5 周](./第05周_OpenCode与Agent基础.md) · [下一周：第 7 周 →](./第07周_Pandas基础与进阶.md)
 

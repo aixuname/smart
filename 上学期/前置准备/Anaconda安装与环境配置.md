@@ -1,4 +1,4 @@
-# 第一章：Anaconda 安装与环境配置（Windows）
+# Anaconda 安装与环境配置（Windows）
 
 本教程面向第一次接触 Python 的同学，适用于 64 位 Windows 10/11。完成后，你将能够使用 Conda 创建独立的 Python 环境，并通过命令行运行课程代码。
 
@@ -276,7 +276,7 @@ conda install numpy
 
 下载信息中的 Channel URL 应指向清华镜像站。
 
-## 9. 运行第一章代码
+## 9. 运行第 1 周代码
 
 激活课程环境：
 
@@ -287,7 +287,7 @@ conda activate smartclub
 切换到课程文件所在目录后运行：
 
 ```bat
-python ch01_入门与环境.py
+python 第01周_入门与环境.py
 ```
 
 如果程序显示 `Hello, Python!` 并提示输入名字，就说明环境已经可以正常使用。
