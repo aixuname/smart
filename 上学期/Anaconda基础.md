@@ -95,7 +95,7 @@ E:\Anaconda\Scripts
 E:\Anaconda\Library\usr\bin
 ```
 
-![Anaconda 系统 Path 配置示例](./images/anaconda-system-path-example.png)
+![Anaconda 系统 Path 配置示例](./Anaconda基础_Path配置示例.png)
 
 如果安装在 `D:\Anaconda`，则应改成：
 
