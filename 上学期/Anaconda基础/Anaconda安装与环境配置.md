@@ -287,7 +287,7 @@ conda activate smartclub
 切换到课程文件所在目录后运行：
 
 ```bat
-python 第01周_入门与环境.py
+python ..\第01周_变量数据类型与字符串\入门与环境.py
 ```
 
 如果程序显示 `Hello, Python!` 并提示输入名字，就说明环境已经可以正常使用。
