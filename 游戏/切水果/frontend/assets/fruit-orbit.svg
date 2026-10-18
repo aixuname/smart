@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="540" height="400" viewBox="0 0 540 400" fill="none">
+  <defs>
+    <linearGradient id="melon" x1="174" y1="134" x2="365" y2="307" gradientUnits="userSpaceOnUse"><stop stop-color="#FFAB8D"/><stop offset="1" stop-color="#EB705F"/></linearGradient>
+    <linearGradient id="orange" x1="341" y1="49" x2="442" y2="153" gradientUnits="userSpaceOnUse"><stop stop-color="#FFD99B"/><stop offset="1" stop-color="#EFA35D"/></linearGradient>
+    <linearGradient id="trail" x1="72" y1="321" x2="450" y2="100" gradientUnits="userSpaceOnUse"><stop stop-color="#C8ED9A" stop-opacity="0"/><stop offset=".65" stop-color="#C8ED9A"/><stop offset="1" stop-color="#FAF9E9"/></linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#06120E" flood-opacity=".35"/></filter>
+  </defs>
+  <circle cx="280" cy="206" r="160" stroke="#A7C3AC" stroke-opacity=".12"/>
+  <circle cx="280" cy="206" r="127" stroke="#A7C3AC" stroke-opacity=".1" stroke-dasharray="3 9"/>
+  <ellipse cx="280" cy="217" rx="232" ry="109" transform="rotate(-24 280 217)" stroke="#A7C3AC" stroke-opacity=".2"/>
+  <g filter="url(#shadow)" transform="rotate(-19 271 212)">
+    <path d="M145 169H390C390 247 336 303 268 303C200 303 145 247 145 169Z" fill="#74A779"/>
+    <path d="M156 169H379C379 237 330 290 268 290C206 290 156 237 156 169Z" fill="#D8EAB2"/>
+    <path d="M167 169H367C367 231 323 278 268 278C213 278 167 231 167 169Z" fill="url(#melon)"/>
+    <g fill="#522F2A"><ellipse cx="200" cy="192" rx="3.5" ry="7" transform="rotate(-33 200 192)"/><ellipse cx="230" cy="216" rx="3.5" ry="7" transform="rotate(-20 230 216)"/><ellipse cx="268" cy="228" rx="3.5" ry="7"/><ellipse cx="307" cy="213" rx="3.5" ry="7" transform="rotate(24 307 213)"/><ellipse cx="336" cy="191" rx="3.5" ry="7" transform="rotate(38 336 191)"/><ellipse cx="248" cy="183" rx="3" ry="6"/><ellipse cx="290" cy="184" rx="3" ry="6"/></g>
+    <path d="M177 162L359 162" stroke="#FFC7AD" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g filter="url(#shadow)" transform="rotate(18 392 95)">
+    <circle cx="392" cy="95" r="53" fill="url(#orange)"/>
+    <circle cx="392" cy="95" r="43" fill="#F7BA78" stroke="#FFE4B9" stroke-width="4"/>
+    <path d="M392 56V134M353 95H431M364 67L420 123M420 67L364 123" stroke="#FFE4B9" stroke-width="3.5"/>
+    <circle cx="392" cy="95" r="5" fill="#FFE4B9"/>
+  </g>
+  <g transform="rotate(-25 127 294)" filter="url(#shadow)">
+    <circle cx="127" cy="294" r="35" fill="#8DB974"/>
+    <circle cx="127" cy="294" r="28" fill="#CCE49D" stroke="#EAF1CA" stroke-width="3"/>
+    <ellipse cx="127" cy="294" rx="9" ry="14" fill="#F1EFD0"/>
+    <g stroke="#58683B" stroke-width="2.5" stroke-linecap="round"><path d="M115 278L117 282M137 278L135 282M109 291L113 291M143 291L139 291M111 306L115 303M142 305L138 302M125 315L125 310"/></g>
+  </g>
+  <path d="M77 320C210 307 331 221 438 135" stroke="url(#trail)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M420 148L461 116L451 137L438 135L432 149Z" fill="#F3F3DE"/>
+  <circle cx="438" cy="135" r="11" stroke="#C8ED9A" stroke-opacity=".5"/><circle cx="438" cy="135" r="3" fill="#C8ED9A"/>
+  <path d="M172 105C145 106 131 91 138 70C162 68 178 82 172 105Z" fill="#88B889"/>
+  <path d="M145 79L172 105" stroke="#C7E3B2" stroke-width="1.5"/>
+  <path d="M381 296C402 281 423 287 424 307C405 323 386 316 381 296Z" fill="#719C72"/>
+  <g fill="#CCE99B"><path d="M220 71L223 81L233 84L223 87L220 97L217 87L207 84L217 81Z"/><circle cx="469" cy="238" r="3"/><circle cx="208" cy="321" r="3"/><circle cx="316" cy="54" r="2"/></g>
+  <g fill="#F1AE81"><circle cx="118" cy="166" r="4"/><circle cx="343" cy="330" r="3"/><path d="M473 180L476 187L483 190L476 193L473 200L470 193L463 190L470 187Z"/></g>
+  <g transform="translate(320 264) rotate(-9)"><rect width="91" height="35" rx="17.5" fill="#202E26" stroke="#546849"/><text x="45.5" y="23" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#D5EDA4">NICE SLICE!</text></g>
+</svg>

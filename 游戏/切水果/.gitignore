@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+backend/settings.json
+backend/settings.tmp
+backend/models/*.task
+artifacts/

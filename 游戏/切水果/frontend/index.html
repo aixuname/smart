@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#121c18" />
+  <title>疯狂切水果 · 手势识别</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='g' cx='35%25' cy='30%25' r='70%25'%3E%3Cstop offset='0%25' stop-color='%23FF6B81'/%3E%3Cstop offset='100%25' stop-color='%23FF2E63'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='32' r='24' fill='url(%23g)'/%3E%3Cpath d='M32 8 C30 16 30 20 32 22' stroke='%233DDC84' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='44' cy='20' r='6' fill='%2308D9D6'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+    <symbol id="icon-hand" viewBox="0 0 24 24"><path d="M8 13V5a1.5 1.5 0 0 1 3 0v6-8a1.5 1.5 0 0 1 3 0v8-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v7c0 4-3 6-7 6-3 0-5-2-7-5l-3-4a1.5 1.5 0 0 1 2-2Z"/></symbol>
+    <symbol id="icon-mouse" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="6"/><path d="M12 6v4"/></symbol>
+    <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6m-3 0v3m7-1 2 2"/></symbol>
+    <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 3 2.4 6.6L21 12l-6.6 2.4L12 21l-2.4-6.6L3 12l6.6-2.4Z"/></symbol>
+    <symbol id="icon-cup" viewBox="0 0 24 24"><path d="M7 3h10v6a5 5 0 0 1-10 0Zm0 2H3v3a4 4 0 0 0 4 4m10-7h4v3a4 4 0 0 1-4 4M12 14v6m-4 1h8"/></symbol>
+    <symbol id="icon-infinity" viewBox="0 0 24 24"><path d="M12 12s-3-5-6-5a5 5 0 0 0 0 10c3 0 6-5 6-5s3-5 6-5a5 5 0 0 1 0 10c-3 0-6-5-6-5Z"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="icon-tune" viewBox="0 0 24 24"><path d="M4 7h7m4 0h5M4 17h3m4 0h9"/><circle cx="13" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+  </defs></svg>
+  <div id="game-container"></div>
+
+  <!-- 手势/摄像头状态条 -->
+  <div id="status-bar" aria-label="连接状态与游戏操作">
+    <span id="status-input">输入：<b id="status-input-name">鼠标</b></span>
+    <span id="status-model" class="status-model-ok">手势服务：连接中</span>
+    <span id="status-fps">FPS --</span>
+    <span id="status-hand" role="status">等待手掌</span>
+    <button id="btn-live-config" class="hidden">设置 / 暂停</button>
+    <button id="btn-live-menu" class="hidden">返回菜单</button>
+  </div>
+
+  <div id="hand-cursor" class="hand-cursor hidden" aria-hidden="true"><i></i><svg class="icon"><use href="#icon-hand"/></svg><span>刀锋位置</span></div>
+  <aside id="hand-tracking-notice" class="tracking-notice hidden" aria-labelledby="tracking-notice-title"><svg class="icon"><use href="#icon-hand"/></svg><h2 id="tracking-notice-title">等待识别手掌</h2><p id="tracking-notice-detail">把整只手放入摄像头画面，出现跟手光圈后即可开切。</p><div><button id="btn-check-tracking" class="btn btn-primary">查看摄像头与识别</button><button id="btn-use-mouse" class="btn btn-ghost">使用鼠标</button></div></aside>
+
+  <svg id="hand-guide-connection" class="hand-guide-connection hidden" aria-hidden="true">
+    <defs><clipPath id="hand-guide-line-clip"><path id="hand-guide-line-window" clip-rule="evenodd" /></clipPath></defs>
+    <line clip-path="url(#hand-guide-line-clip)" />
+  </svg>
+  <aside id="hand-guide" class="hand-guide hidden" aria-labelledby="hand-guide-title">
+    <header><h2 id="hand-guide-title">你的手 → 刀锋</h2><button id="btn-hand-guide-toggle" aria-expanded="true" aria-controls="hand-guide-body">收起</button></header>
+    <div id="hand-guide-body">
+      <div id="hand-guide-frame" class="hand-guide-frame">
+        <p id="hand-guide-placeholder">正在连接画面…</p>
+        <img id="hand-guide-preview" alt="与刀锋方向一致的实时手部预览" />
+        <div id="hand-guide-area" aria-hidden="true"></div>
+        <div id="hand-guide-marker" class="hand-guide-marker hidden" aria-hidden="true"><span>手</span></div>
+        <span class="hand-guide-caption">框内对应整个游戏画面</span>
+      </div>
+      <p id="hand-guide-direction" class="hand-guide-direction">镜像 · 手与刀左右同向</p>
+      <p id="hand-guide-hint">左右、上下移动手掌整体，让刀锋划过水果。</p>
+      <p id="hand-guide-cut">不用握拳或捏合，移动即可切水果。</p>
+      <label class="hand-guide-line-label"><input id="hand-guide-line-toggle" type="checkbox" checked />手 → 刀锋连线</label>
+    </div>
+  </aside>
+
+  <!-- ===================== 主菜单 ===================== -->
+  <div id="menu-overlay" class="overlay">
+    <main class="menu-panel home-panel">
+      <header class="home-header">
+        <div class="brand"><span class="brand-mark"><svg class="icon"><use href="#icon-spark"/></svg></span><span>疯狂切水果<small>FRUIT FLASH</small></span></div>
+        <span class="menu-badge"><i></i> 手势互动体验</span>
+      </header>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">A LITTLE MOVEMENT. A LOT OF JOY.</p>
+          <h1 class="game-title">挥一挥手，<br/><em>快乐开切。</em></h1>
+          <p class="hero-description">让手掌变成刀锋。<br/>轻松挥动，接住每一个畅快瞬间。</p>
+          <div class="hero-note"><svg class="icon"><use href="#icon-hand"/></svg> 无需手柄，伸手就能玩 <span>·</span> 也支持鼠标</div>
+        </div>
+        <div class="hero-art" aria-hidden="true"><span class="art-caption">FRESH FRUIT. FRESH RECORD.</span><img src="assets/fruit-orbit.svg" alt="" width="540" height="400"/><span class="art-coordinate">01 / PLAY WITH YOUR HANDS</span></div>
+      </section>
+      <div class="section-heading"><h2>今天，想怎么切？</h2><span>选择你的挑战</span></div>
+      <div class="mode-cards" role="group" aria-label="游戏模式">
+        <button class="mode-card active" data-mode="endless" aria-pressed="true">
+          <span class="mode-card-top"><span class="mode-icon"><svg class="icon"><use href="#icon-infinity"/></svg></span><span class="mode-tag">自由畅玩</span><span class="selection-dot"></span></span>
+          <span class="mode-name">无尽模式 <small>ENDLESS</small></span>
+          <span class="mode-desc">5 次机会，享受每一次挥动</span>
+        </button>
+        <button class="mode-card" data-mode="timed" aria-pressed="false">
+          <span class="mode-card-top"><span class="mode-icon"><svg class="icon"><use href="#icon-clock"/></svg></span><span class="mode-tag">争分夺秒</span><span class="selection-dot"></span></span>
+          <span class="mode-name">限时模式 <small>TIME ATTACK</small></span>
+          <span class="mode-desc">60 秒倒计时，挑战你的纪录</span>
+        </button>
+        <button class="mode-card" data-mode="demo" aria-pressed="false">
+          <span class="mode-card-top"><span class="mode-icon"><svg class="icon"><use href="#icon-spark"/></svg></span><span class="mode-tag">轻松围观</span><span class="selection-dot"></span></span>
+          <span class="mode-name">演示模式 <small>AUTO PLAY</small></span>
+          <span class="mode-desc">先看一局，随时挥手加入</span>
+        </button>
+      </div>
+      <div class="play-bar">
+        <button id="btn-input-config" class="input-config-btn">
+          <svg class="icon"><use href="#icon-tune"/></svg><span class="input-config-copy"><span class="input-config-label">控制方式</span><b id="input-config-value">手势识别</b></span><span class="input-config-chev">›</span>
+        </button>
+        <div class="play-actions"><button id="btn-rank" class="btn btn-ghost"><svg class="icon"><use href="#icon-cup"/></svg>排行榜</button><button id="btn-start" class="btn btn-primary">开始游戏<svg class="icon"><use href="#icon-arrow"/></svg></button></div>
+      </div>
+      <footer class="home-footer"><span>移动手掌切水果，记得避开炸弹。</span><span><kbd>Enter</kbd> 开始游戏 <i> / </i> <kbd>Esc</kbd> 暂停</span></footer>
+    </main>
+  </div>
+
+  <!-- ===================== 识别模式小窗 ===================== -->
+  <div id="input-config-overlay" class="overlay hidden">
+    <section class="menu-panel input-config-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <header class="modal-heading"><div><p class="eyebrow">MAKE IT YOURS</p><h2 class="result-title" id="settings-title">找到你的最佳手感</h2><p class="game-subtitle">选择控制方式，让刀锋更懂你的动作。</p></div><button id="btn-input-close" class="icon-button" aria-label="关闭识别设置"><svg class="icon"><use href="#icon-close"/></svg></button></header>
+
+      <div class="input-big-select">
+        <button class="input-big-opt active" data-input="gesture">
+          <div class="input-big-icon"><svg class="icon"><use href="#icon-hand"/></svg></div>
+          <div class="input-big-name">手势识别</div>
+          <div class="input-big-desc">刀锋跟随手掌，隔空挥动切水果</div>
+        </button>
+        <button class="input-big-opt" data-input="mouse">
+          <div class="input-big-icon"><svg class="icon"><use href="#icon-mouse"/></svg></div>
+          <div class="input-big-name">鼠标操作</div>
+          <div class="input-big-desc">鼠标控制刀锋，无需摄像头</div>
+        </button>
+      </div>
+
+      <div id="menu-tip" class="menu-tip hidden">tip</div>
+
+      <div id="gesture-settings">
+        <div class="gesture-tuning-row">
+        <div class="gesture-monitor">
+        <div class="section-heading"><h3>手部预览</h3><span class="live-label">LIVE VIEW</span></div>
+        <div class="gesture-preview-wrap">
+          <div class="preview-placeholder" aria-hidden="true"><svg class="icon"><use href="#icon-hand"/></svg><span>把手放进画面</span><small>刀锋会跟随你的掌心</small></div>
+          <img id="gesture-preview" alt="摄像头实时手部骨架预览" />
+          <div id="gesture-workarea"></div>
+          <span class="preview-caption">框内对应游戏全屏 · 绿圈出刀 / 黄圈待机</span>
+        </div>
+        <p id="gesture-diagnostic" role="status">正在连接手势服务…</p>
+        <div class="input-mirror hidden" id="input-mirror-row"><label class="mirror-toggle"><input type="checkbox" id="input-mirror" checked /><span>镜像画面 · 手与刀锋同向</span></label></div>
+        <div class="calibration-block"><h3>让动作刚刚好</h3><p class="settings-help">把舒适的挥手范围映射到整个屏幕。</p><button id="btn-gesture-calibrate" class="btn btn-outline">标定操作范围<svg class="icon"><use href="#icon-arrow"/></svg></button><div class="preset-actions"><button id="btn-gesture-preset-save" class="text-button">保存个人映射</button><button id="btn-gesture-preset-load" class="text-button">载入个人映射</button></div><p id="gesture-calibration-status" class="settings-help" role="status"></p></div>
+        </div>
+        <div class="settings-fields">
+        <section class="control-section"><div class="section-heading"><h3><span>01</span> 出刀与跟随</h3><span>调整跟手体验</span></div>
+        <div class="gesture-controls">
+          <label>出刀方式<select id="gesture-activation"><option value="always">跟手出刀</option><option value="index">伸食指出刀</option><option value="pinch">捏合出刀</option></select></label>
+          <label>追踪位置 · 选择即应用<select id="gesture-point" aria-describedby="gesture-point-status"><option value="-1">手掌中心</option><option value="8">食指指尖</option><option value="12">中指指尖</option><option value="0">手腕</option></select></label>
+          <label>识别灵敏度<select id="gesture-detection"><option value="0.35">较高（推荐）</option><option value="0.5">标准</option><option value="0.25">更高</option></select></label>
+          <label>平滑算法<select id="gesture-filter"><option value="one_euro">动态平滑</option><option value="ema">经典平滑</option></select></label>
+          <label>跟手程度 <output id="gesture-smooth-value"></output><input id="gesture-smooth" type="range" min="0.1" max="1" step="0.05" value="0.5" /></label>
+          <label>捏合容差 <output id="gesture-pinch-value"></output><input id="gesture-pinch" type="range" min="0.15" max="0.8" step="0.05" value="0.4" /></label>
+        </div><p id="gesture-point-status" class="settings-help" role="status">正在读取追踪位置…</p><p class="settings-help">追踪位置决定刀锋跟随哪里：掌心跟随整只手，食指 / 中指分别跟随对应指尖。预览光圈标出当前控制点；其他识别设置需点击下方应用。</p><p class="settings-help">有画面但识别困难时提高灵敏度；出现误识别时调回标准。应用灵敏度后会短暂重载模型。</p></section>
+        <section class="control-section"><div class="section-heading"><h3><span>02</span> 操作范围</h3><button id="btn-gesture-center" class="text-button">恢复全画面</button></div><div class="gesture-controls">
+          <label>水平灵敏度 <output id="gesture-sensitivity-value"></output><input id="gesture-sensitivity" type="range" min="1" max="5" step="0.05" value="1" /></label>
+          <label>垂直灵敏度 <output id="gesture-sensitivityY-value"></output><input id="gesture-sensitivityY" type="range" min="1" max="5" step="0.05" value="1" /></label>
+          <label>左右中心偏移 <output id="gesture-offsetX-value"></output><input id="gesture-offsetX" type="range" min="-0.4" max="0.4" step="0.01" value="0" /></label>
+          <label>上下中心偏移 <output id="gesture-offsetY-value"></output><input id="gesture-offsetY" type="range" min="-0.4" max="0.4" step="0.01" value="0" /></label>
+        </div>
+        </section>
+        <details class="device-settings"><summary>摄像头与性能设置<span>进阶调节</span></summary><div class="gesture-controls"><label>摄像头编号<input id="gesture-camera" type="number" min="0" max="20" step="1" value="0" /></label><label>目标帧率<select id="gesture-fps"><option value="15">15 FPS</option><option value="20">20 FPS</option><option value="30">30 FPS</option><option value="60">60 FPS</option></select></label></div><p id="gesture-metrics" class="settings-help">等待数据…</p><p class="settings-help">最近 180 次采样的 P50 / P95，不包含摄像头曝光和显示器延迟。</p></details>
+        <div class="menu-actions settings-actions"><button id="btn-gesture-apply" class="btn btn-primary">应用识别设置</button><button id="btn-gesture-retry" class="btn btn-ghost">重连摄像头 / 模型</button></div><p id="gesture-save-status" role="status"></p>
+        </div>
+        </div>
+      </div>
+      <footer class="modal-footer"><span>找到适合你的设置，就可以开切了。</span><div class="menu-actions">
+        <button id="btn-input-done" class="btn btn-primary">完成</button>
+      </div></footer>
+    </section>
+  </div>
+
+  <!-- ===================== 结算 ===================== -->
+  <div id="result-overlay" class="overlay hidden">
+    <section class="menu-panel result-panel" role="dialog" aria-modal="true" aria-labelledby="result-title">
+      <div class="result-emblem"><svg class="icon"><use href="#icon-spark"/></svg></div><p class="eyebrow">THAT WAS A FRESH ROUND.</p>
+      <h2 class="result-title" id="result-title">每一刀，都很精彩。</h2>
+      <div class="score-box">
+        <div class="score-label">本局得分 · YOUR SCORE</div>
+        <div id="result-score" class="score-value">0</div>
+      </div>
+      <div class="result-stats">
+        <div><span>连击最高</span><b id="result-combo">0</b></div>
+        <div><span>切开水果</span><b id="result-sliced">0</b></div>
+        <div><span>切到炸弹</span><b id="result-miss">0</b></div>
+      </div>
+      <div class="nickname-row">
+        <input id="nickname-input" type="text" maxlength="8" placeholder="留下你的名字" aria-label="排行榜昵称" />
+        <button id="btn-save-rank" class="btn btn-primary">保存成绩</button>
+      </div>
+      <div id="rank-list" class="rank-list"></div>
+      <div class="menu-actions">
+        <button id="btn-retry" class="btn btn-primary">再来一局</button>
+        <button id="btn-menu" class="btn btn-ghost">返回菜单</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== 排行榜 ===================== -->
+  <div id="leaderboard-overlay" class="overlay hidden">
+    <section class="menu-panel leaderboard-panel" role="dialog" aria-modal="true" aria-labelledby="leaderboard-title">
+      <div class="result-emblem"><svg class="icon"><use href="#icon-cup"/></svg></div><p class="eyebrow">THE FRESH RECORDS</p><h2 class="result-title" id="leaderboard-title">高手，都在这里。</h2><p class="game-subtitle">本机排行榜 · 记录每一次超越</p>
+      <div id="rank-tabs" class="rank-tabs">
+        <button class="rank-tab active" data-rmode="all">全部</button>
+        <button class="rank-tab" data-rmode="endless">无尽</button>
+        <button class="rank-tab" data-rmode="timed">限时</button>
+        <button class="rank-tab" data-rmode="demo">演示</button>
+      </div>
+      <div id="leaderboard-list" class="rank-list"></div>
+      <div class="menu-actions">
+        <button id="btn-rank-back" class="btn btn-ghost">返回</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== 引导提示 ===================== -->
+  <div id="guide-tip" class="guide-tip hidden">
+    <div class="guide-text"><svg class="icon"><use href="#icon-hand"/></svg>移动手掌，刀锋跟着你<small>把整只手放入摄像头画面</small></div>
+  </div>
+
+  <!-- 本地 Phaser（UMD，离线可用，无 CDN 依赖） -->
+  <script src="vendor/phaser.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
