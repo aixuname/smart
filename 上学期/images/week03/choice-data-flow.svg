@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="535" viewBox="0 0 1000 535" role="img" aria-labelledby="title desc">
+<title id="title">一次选择，保存后多次使用</title><desc id="desc">名单传入 choice；假设返回小周，student 保存这个名字，后面的两条提示都使用同一个 student。</desc>
+<defs><marker id="blue-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2563a6"/></marker><marker id="green-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#137b68"/></marker></defs>
+<rect width="1000" height="535" rx="18" fill="#f5f8fc"/>
+<g font-family="Noto Sans CJK SC, Microsoft YaHei, PingFang SC, Droid Sans Fallback, sans-serif" fill="#183044">
+<text x="36" y="48" font-size="28" fill="#183044" font-weight="bold">一次选择，保存后多次使用</text>
+<text x="36" y="89" font-size="24" fill="#183044" font-weight="normal" font-family="DejaVu Sans Mono, Consolas, monospace">student = choice(names)</text>
+<text x="705" y="88" font-size="20" fill="#526778" font-weight="normal">示例：这次抽中小周</text>
+<rect x="36" y="132" width="250" height="146" rx="12" fill="white" stroke="#ccd9e4" stroke-width="1.5"/>
+<text x="56" y="166" font-size="24" fill="#2563a6" font-weight="normal" font-family="DejaVu Sans Mono, Consolas, monospace">names</text>
+<text x="56" y="207" font-size="22" fill="#183044" font-weight="normal">[&quot;小林&quot;, &quot;小陈&quot;,</text>
+<text x="56" y="244" font-size="22" fill="#183044" font-weight="normal"> &quot;小周&quot;, &quot;小李&quot;]</text>
+<rect x="390" y="132" width="204" height="146" rx="12" fill="#eaf2fe" stroke="#ccd9e4" stroke-width="1.5"/>
+<text x="418" y="182" font-size="20" fill="#2563a6" font-weight="normal" font-family="DejaVu Sans Mono, Consolas, monospace">choice(names)</text>
+<text x="432" y="226" font-size="18" fill="#183044" font-weight="normal">随机选出一个名字</text>
+<rect x="708" y="132" width="256" height="146" rx="12" fill="#eaf6f1" stroke="#ccd9e4" stroke-width="1.5"/>
+<text x="730" y="172" font-size="24" fill="#137b68" font-weight="normal" font-family="DejaVu Sans Mono, Consolas, monospace">student</text>
+<text x="730" y="228" font-size="30" fill="#137b68" font-weight="normal">&quot;小周&quot;</text>
+<path d="M 288 205 H 386" fill="none" stroke="#2563a6" stroke-width="2.5" marker-end="url(#blue-arrow)"/>
+<text x="304" y="186" font-size="18" fill="#2563a6" font-weight="normal">传入名单</text>
+<path d="M 596 205 H 704" fill="none" stroke="#137b68" stroke-width="2.5" marker-end="url(#green-arrow)"/>
+<text x="609" y="186" font-size="18" fill="#137b68" font-weight="normal">返回名字</text>
+<path d="M 836 280 V 337" fill="none" stroke="#137b68" stroke-width="2.5" marker-end="url(#green-arrow)"/>
+<text x="590" y="316" font-size="19" fill="#137b68" font-weight="normal">后续使用已保存的值</text>
+<rect x="36" y="342" width="928" height="153" rx="12" fill="white" stroke="#ccd9e4" stroke-width="1.5"/>
+<text x="60" y="379" font-size="22" fill="#183044" font-weight="normal">print(&quot;请&quot;, student, &quot;同学回答问题&quot;)</text>
+<text x="60" y="415" font-size="22" fill="#183044" font-weight="normal">print(&quot;感谢&quot;, student, &quot;同学参与&quot;)</text>
+<text x="60" y="467" font-size="21" fill="#526778" font-weight="normal">两条提示里的名字相同，choice 只调用了一次。</text>
+</g></svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="575" viewBox="0 0 1000 575" role="img" aria-labelledby="title desc">
+<title id="title">两个文件，共用一个函数</title><desc id="desc">main.py 与 score_tools.py 保存在同一个 lesson03 文件夹。main.py 从 score_tools 导入 add_bonus，调用时传入 70，收到 80，随后打印结果。</desc>
+<defs><marker id="blue-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#2563a6"/></marker><marker id="green-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#137b68"/></marker></defs>
+<rect width="1000" height="575" rx="18" fill="#f5f8fc"/>
+<g font-family="Noto Sans CJK SC, Microsoft YaHei, PingFang SC, Droid Sans Fallback, sans-serif" fill="#183044">
+<text x="36" y="48" font-size="28" fill="#183044" font-weight="bold">两个文件，共用一个函数</text>
+<rect x="28" y="81" width="944" height="397" rx="12" fill="#ffffff" stroke="#ccd9e4" stroke-width="1.5"/>
+<text x="52" y="119" font-size="23" fill="#526778" font-weight="normal">lesson03 /  同一个文件夹</text>
+<rect x="48" y="141" width="500" height="305" rx="12" fill="#f3f7fd" stroke="#ccd9e4" stroke-width="1.5"/>
+<text x="68" y="180" font-size="25" fill="#2563a6" font-weight="bold" font-family="DejaVu Sans Mono, Consolas, monospace">main.py</text>
+<text x="68" y="225" font-size="19" fill="#183044" font-weight="normal" font-family="DejaVu Sans Mono, Consolas, monospace">from score_tools import add_bonus</text>
+<text x="68" y="302" font-size="22" fill="#183044" font-weight="normal" font-family="DejaVu Sans Mono, Consolas, monospace">result = add_bonus(70)</text>
+<text x="68" y="345" font-size="22" fill="#183044" font-weight="normal" font-family="DejaVu Sans Mono, Consolas, monospace">print(result)</text>
+<text x="68" y="409" font-size="21" fill="#2563a6" font-weight="normal">运行这个文件</text>
+<rect x="670" y="141" width="280" height="305" rx="12" fill="#eff8f4" stroke="#ccd9e4" stroke-width="1.5"/>
+<text x="690" y="180" font-size="23" fill="#137b68" font-weight="bold" font-family="DejaVu Sans Mono, Consolas, monospace">score_tools.py</text>
+<text x="690" y="225" font-size="18" fill="#183044" font-weight="normal" font-family="DejaVu Sans Mono, Consolas, monospace">def add_bonus(score):</text>
+<text x="710" y="265" font-size="18" fill="#183044" font-weight="normal" font-family="DejaVu Sans Mono, Consolas, monospace">return score + 10</text>
+<text x="690" y="409" font-size="21" fill="#137b68" font-weight="normal">保存函数定义</text>
+<path d="M 668 215 H 552" fill="none" stroke="#137b68" stroke-width="2.5" marker-end="url(#green-arrow)"/>
+<text x="568" y="196" font-size="18" fill="#137b68" font-weight="normal">引入函数</text>
+<path d="M 550 294 H 666" fill="none" stroke="#2563a6" stroke-width="2.5" marker-end="url(#blue-arrow)"/>
+<text x="568" y="282" font-size="18" fill="#2563a6" font-weight="normal">传入 70</text>
+<path d="M 668 350 H 552" fill="none" stroke="#137b68" stroke-width="2.5" marker-end="url(#green-arrow)"/>
+<text x="568" y="376" font-size="18" fill="#137b68" font-weight="normal">返回 80</text>
+<path d="M 298 448 V 498" fill="none" stroke="#2563a6" stroke-width="2.5" marker-end="url(#blue-arrow)"/>
+<rect x="48" y="502" width="500" height="49" rx="12" fill="#eaf2fe" stroke="#ccd9e4" stroke-width="1.5"/>
+<text x="68" y="534" font-size="22" fill="#2563a6" font-weight="normal">main.py 的运行结果：80</text>
+</g></svg>
