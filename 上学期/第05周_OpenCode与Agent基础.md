@@ -15,6 +15,8 @@
 - 说清 **Skill 是什么**、为什么要把重复的要求封装成 Skill，并**亲手写一个自己的 SKILL.md**。
 - **本周产出**：用 OpenCode 在自己项目里改好 1 处代码 + 一个自己写的 Skill。
 
+> **命令阅读约定**：代码框中以 `#` 开头的是解释，不需要单独执行；不确定命令作用时，先阅读说明再运行。软件界面和命令可能随版本变化，本讲义按 **OpenCode 2（2026 年 11 月）**整理，安装时以[官方文档](https://opencode.ai/docs)为准。
+
 ---
 
 ## 一、为什么现在学这个
@@ -50,6 +52,17 @@
 
 一个常见误区：以为它一次就能给出完美答案。实际上 Agent 的工作方式是**一轮一轮试出来的**——执行命令、看到报错、再改、再跑。所以报错不是失败，是它的正常输入。
 
+一次完整工作通常是下面这个循环：
+
+1. **理解目标**：读你的要求和项目规则。
+2. **制定计划**：决定查看哪些文件、修改哪里。
+3. **调用工具**：搜索代码、编辑文件、运行命令。
+4. **观察结果**：阅读报错、测试结果和代码差异。
+5. **继续修正**：没有达到验收标准就回到第 2 步。
+6. **交给你验收**：说明改了什么、怎样验证。
+
+因此，判断 Agent 是否完成任务，不是看它说“已经完成”，而是看**测试、运行结果和文件差异**。
+
 > 这就是为什么「它会犯错」不是 bug，而是设计前提。你的任务是当那个**验收的人**。
 
 ## 三、OpenCode 是什么
@@ -62,47 +75,34 @@
 | **桌面应用** | 独立窗口的程序 | 不习惯命令行的同学 |
 | **IDE 扩展** | VS Code / Cursor / Zed / Windsurf 插件 | 已经习惯在编辑器里工作 |
 
-安装前需要准备：**一个现代终端**（Windows Terminal 就行）和**一个模型提供商的 API Key**。
+安装前需要准备：**一个现代终端**（Windows Terminal 就行）。模型既可以使用提供商账号/API Key，也可以按 `/connect` 中的可用方式登录。
 
 ## 四、安装
 
 ### 方式一：终端版（推荐）
 
 ```bash
-# 官方安装脚本（macOS / Linux / WSL）
-curl -fsSL https://opencode.ai/install | bash
+# 官方安装脚本（macOS / Linux / WSL，安装 OpenCode 2）
+curl -fsSL https://opencode.ai/v2/install | bash
 ```
 
-Windows 上更简单的是走 npm（你第 3 周已经装过 Node.js 了）：
+Windows 原生环境可以下载官方独立程序，也可以在安装 Node.js 后使用 npm：
 
 ```bash
-npm install -g opencode-ai
-opencode --version        # 验证装好了
+# 安装 OpenCode 2 的命令行程序
+npm install -g @opencode/cli
+
+# 显示版本号；能正常输出就说明命令已加入 Path
+opencode --version
 ```
 
-> 官方还提供了 `choco install opencode`、`scoop install opencode` 等方式，Windows 上也能用。官方**推荐 WSL** 以获得最佳体验，但零基础阶段先用原生 Windows 完全够用，别一上来就折腾 WSL。
+> OpenCode 1 的旧教程常写 `npm install -g opencode-ai`，不要和上面的 OpenCode 2 混装。若 `opencode --version` 找不到命令，先关闭并重新打开终端，再检查 `npm config get prefix` 返回的目录是否在系统 `Path` 中。
 
 ### 方式二：桌面版
 
 去 [下载页](https://opencode.ai/zh/download) 选 **Windows (x64)**。
 
-**注意一个坑**：桌面版是**一键安装包，没有选目录的步骤**，会固定装到：
-
-```
-C:\Users\<你的用户名>\AppData\Local\Programs\@opencodedesktop
-```
-
-官方明确表示不会提供自定义目录（见 [Issue #26791](https://github.com/anomalyco/opencode/issues/26791)）。如果你的 C 盘紧张，装完后把它搬到别的盘再建一个目录联接就行：
-
-```powershell
-# 1. 彻底退出 OpenCode（含托盘图标）
-# 2. 移动
-Move-Item "$env:LOCALAPPDATA\Programs\@opencodedesktop" "D:\Apps\@opencodedesktop"
-# 3. 建联接，让系统以为它还在原地
-cmd /c mklink /J "$env:LOCALAPPDATA\Programs\@opencodedesktop" "D:\Apps\@opencodedesktop"
-```
-
-> 注意：卸载时要先删 C 盘那个联接，再手动删掉 D 盘的目录，否则会残留几百 MB。
+下载页面会根据系统提供 Windows x64 或 ARM64 版本。普通 Intel/AMD 电脑通常选 **x64**；只有明确使用 Windows on ARM 的设备才选 ARM64。安装前先看安装程序是否允许选择目录；学校机房或磁盘空间受限时，应遵守老师给出的存储规范，不要自行移动程序目录或创建系统联接。
 
 ### 方式三：IDE 扩展
 
@@ -113,7 +113,10 @@ cmd /c mklink /J "$env:LOCALAPPDATA\Programs\@opencodedesktop" "D:\Apps\@opencod
 ### 第 1 步：配置模型提供商
 
 ```bash
-cd 你的项目目录
+# 切换到项目目录；把示例路径换成你自己的路径
+cd D:\python-study
+
+# 从当前目录启动，Agent 默认以这里作为项目范围
 opencode
 ```
 
@@ -123,7 +126,12 @@ opencode
 /connect
 ```
 
-然后选一个提供商，填入 API Key。**没有 Key 的话，OpenCode 官方提供了 OpenCode Zen**（一组官方测试过的精选模型），按提示去 `opencode.ai/auth` 注册即可，对零基础最省事。
+然后按界面选择提供商和登录方式，再用 `/models` 选择模型。不同提供商的收费、隐私和额度不同，输入凭据前要确认账号和费用规则。
+
+```
+/connect
+/models
+```
 
 ### 第 2 步：初始化项目
 
@@ -148,18 +156,30 @@ OpenCode 会分析你的项目，在根目录生成一个 **`AGENTS.md`**，记�
 
 > 强烈建议：**任何改动都先走计划模式**。看它打算改哪些文件、怎么改，确认无误再切构建模式。这一步能挡掉 80% 的「它把我的代码改乱了」。
 
-### 第 4 步：撤销
+### 第 4 步：先查看差异，再决定保留还是撤销
 
 ```bash
 /undo      # 不满意就撤回
 ```
 
-加上 Git 兜底，你就永远不会被改崩：
+Git 是第二层保护。下面四条命令分别负责查看状态、查看改动、建立存档和恢复未提交修改：
 
 ```bash
-git commit -m "AI 动手前先存档"
-git checkout .          # 兜底回退
+# 1. 查看哪些文件被改动或新增
+git status
+
+# 2. 逐行查看改了什么；绿色通常是新增，红色通常是删除
+git diff
+
+# 3. 确认当前版本正确后再保存（提交前要先 git add）
+git add .
+git commit -m "AI 修改前的可用版本"
+
+# 4. 谨慎使用：丢弃尚未提交的文件修改
+git restore .
 ```
+
+> `git restore .` 会丢弃未提交的修改。先运行 `git status` 和 `git diff`，确认没有需要保留的内容再执行；新建但未跟踪的文件不会被这条命令删除。
 
 ---
 
@@ -175,6 +195,8 @@ git checkout .          # 兜底回退
 【约束】不许改什么、用什么写法、保持什么风格
 【验收标准】怎么判断做完了
 ```
+
+四要素分别解决四个问题：目标回答“最终要得到什么”，上下文回答“到哪里找材料”，约束划定“什么不能动”，验收标准说明“怎样证明已经完成”。其中最容易漏掉的是验收标准。
 
 ### 对比
 
@@ -315,6 +337,20 @@ OpenCode 会把可用技能列在 `skill` 工具的描述里（`<available_skill
 2. 「优化一下性能」
 3. 「加个功能」
 
+<details>
+<summary>展开查看作业 5.3 的参考写法</summary>
+
+```text
+【目标】检查 analyze.py 为什么在读取 scores.csv 时退出，并修复错误。
+【上下文】错误发生在 read_csv 附近；请先阅读终端中的完整报错和这两个文件。
+【约束】只修改 analyze.py，不改原始 CSV，不增加新的第三方库。
+【验收标准】运行 python analyze.py 不报错，并输出学生人数和平均分。
+```
+
+这段 Prompt 没有只说“看看代码”，而是给出了具体文件、限制条件和可执行的验收命令。其余两题可以沿用同一结构，但必须把“性能快多少”或“新增什么功能”写成能检查的指标。
+
+</details>
+
 ## 九、常见问题排查
 
 | 现象 | 原因 | 解决 |
@@ -326,15 +362,14 @@ OpenCode 会把可用技能列在 `skill` 工具的描述里（`<available_skill
 | 它改了一堆不该改的文件 | 没用计划模式 / Prompt 太模糊 | 先 Tab 切计划模式；Prompt 写清「只改 xx 文件」 |
 | 改完代码跑不起来 | 没有自己验证 | 用 `/undo` 撤销，重写 Prompt 再来；Git 兜底 |
 | 技能列表里没有我的 Skill | 文件名或 frontmatter 不合规 | 检查 `SKILL.md` 大写、`name` 与目录名一致 |
-| 桌面版装到 C 盘了 | 一键安装包，官方不提供选目录 | 见第四节「搬到 D 盘 + 建联接」 |
 | 终端中文乱码 | 控制台编码 | 先 `chcp 65001` |
 
 ## 十、安全与成本（必讲）
 
-- **API Key 是密码**：不进仓库、不发群、不截图外传。提交前 `git status` 看一眼。
+- **API Key 是密码**：不进仓库、不发群、不截图外传。凭据应使用软件登录或环境变量保存，不能直接写进 `.py`、`AGENTS.md` 或 `SKILL.md`。提交前用 `git status` 和 `git diff --staged` 检查。
 - **只在项目目录里启动**，不要给它整个磁盘的权限。
 - **每一轮对话都在花钱**，上下文越长越贵；一个话题聊完就开新会话。
-- **改之前先 commit**，改坏了 `git checkout .`。
+- **改之前先 commit**；要撤销未提交修改时，先检查差异，再谨慎使用 `git restore .`。
 - **不要相信「已经修好了」**——一定要自己跑一遍。
 - 涉及个人隐私、学号身份证的数据，不要交给它。
 

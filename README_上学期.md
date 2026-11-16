@@ -24,7 +24,7 @@
 └── 第08周_可视化与综合项目.md
 ```
 
-每份讲义的结构：本周目标 → 知识点讲解（含可运行代码）→ 本周产出 → 常见错误对照表 → 课堂练习 → 课后作业 → 自查清单 → **附录：本周完整示例代码**。
+每份讲义包含知识点分步讲解、带中文注释的可运行代码、易错点、练习与参考答案。部分周次另附完整示例代码；第 3 周还配有函数执行过程的交互演示和图片，帮助学生把代码与运行结果对应起来。
 
 ## 课程安排
 
@@ -32,9 +32,9 @@
 
 | 周次 | 主题 | 核心知识点 | 当周产出 |
 | --- | --- | --- | --- |
-| [第 1 周](./上学期/第01周_变量数据类型与字符串.md) | 变量与数据类型、运算符与字符串 | 常用数据类型、`//` `%` `**`、比较与逻辑运算、字符串切片、5 个常用字符串方法、f-string、`print`/`input` 与缩进 | 格式化输出小练习 |
+| [第 1 周](./上学期/第01周_变量数据类型与字符串.md) | 变量与数据类型、运算符与字符串 | 常用数据类型、`//` `%` `**`、比较与逻辑运算、字符串切片、6 个常用字符串方法、f-string、`print`/`input` 与缩进 | 格式化输出小练习 |
 | [第 2 周](./上学期/第02周_数据结构与条件循环.md) | 数据结构、条件判断与循环 | 列表增删改查、字典按键取值、`for` 遍历、`if / elif / else`；元组与集合认识即可 | 列表词频统计 |
-| [第 3 周](./上学期/第03周_函数与模块.md) | 函数、模块与包 | `def`、参数、`return`、作用域、`import`、`pip install` 三方库 | 把词频统计改写成函数 |
+| [第 3 周](./上学期/第03周_函数与模块.md) | 函数与模块 | 函数调用、参数与返回值、`def`、执行顺序、`print` 与 `return`、`import` 与自定义模块 | 随机点名程序、计算函数与跨文件调用 |
 | [第 4 周](./上学期/第04周_文件异常与类.md) | 文件操作、异常与类 | 文件读写、`try / except`、`class` + `__init__`、`self`、方法（能读懂、能改） | 读写 CSV 并统计行数 |
 | [第 5 周](./上学期/第05周_OpenCode与Agent基础.md) | **OpenCode 与 Agent 基础** | 安装 OpenCode、Agent 的四个要素、Prompt 四要素、Skill（`SKILL.md`）的编写与权限 | 用 AI 改好项目里 1 处 + 写一个自己的 Skill |
 | [第 6 周](./上学期/第06周_NumPy.md) | NumPy | ndarray、shape、切片、布尔索引、随机数、广播、矩阵乘法 | 用 NumPy 做一次成绩统计 |
@@ -49,11 +49,11 @@
 
 - **数据结构**：列表、字典必须熟练；元组、集合认识即可。
 - **循环**：`for` 必须熟练；`while` 认识即可；嵌套循环少讲。
-- **函数**：`def`、参数、`return` 必须会；默认参数、递归不讲。
+- **函数**：`def`、参数、`return` 必须会；默认参数和递归转为课后自学。
 - **模块与包**：会用 `import` 和第三方库；自己写包不讲。
 - **文件与异常**：基本读写和 `try / except`；自定义异常类、`with` 的深入用法不讲。
 - **类与对象**：`class` + `__init__` 能读能改；继承、魔术方法、属性装饰器全不讲。
-- **字符串**：只挑 `strip / split / replace / find / upper` 五个。
+- **字符串**：重点掌握 `strip / split / replace / find / upper / lower` 六个。
 
 > Pandas 从两周压缩为一周（第 7 周），是本周期的最大压力点，讲义里已标注「课上跟不上就按自查清单回去补」。
 
@@ -73,19 +73,19 @@
 
 | 工具 | 作用 |
 | --- | --- |
-| [OpenCode](https://opencode.ai/zh) | 开源 AI 编码代理，终端界面 / 桌面应用 / IDE 扩展三种形态 |
-| Node.js（LTS） | 前置依赖，终端版通过 npm 安装 |
-| 模型提供商 API Key | OpenCode 本身不带模型，需要接一个提供商（官方推荐 OpenCode Zen 起步） |
+| [OpenCode](https://opencode.ai/) | 开源 AI 编码代理，可使用终端、桌面或 Web 形态 |
+| Node.js（LTS，可选） | 选择 npm 安装命令行版时需要；使用官方独立程序则不需要 |
+| 模型提供商账号或凭据 | 按 `/connect` 提示选择登录方式，并提前了解费用与隐私规则 |
 
 ### 课前准备（装机清单）
 
 **提前三天做完**，课上只做配置和验证。
 
-- [ ] 安装 Node.js（LTS），能运行 `node -v` 和 `npm -v`
-- [ ] 配置 npm 国内镜像：`npm config set registry https://registry.npmmirror.com`
-- [ ] 安装 OpenCode：`npm install -g opencode-ai`，能运行 `opencode --version`
-- [ ] 准备 API Key（课上统一发放，或按指引注册 OpenCode Zen）
-- [ ] 桌面版可选：从[下载页](https://opencode.ai/zh/download)取 Windows (x64) 安装包
+- [ ] 选择安装方式：官方独立程序，或安装 Node.js（LTS）后使用 npm
+- [ ] npm 方式安装 OpenCode 2：`npm install -g @opencode/cli`
+- [ ] 运行 `opencode --version`，确认命令可用
+- [ ] 准备可用的模型登录方式，并确认费用与隐私要求
+- [ ] 桌面版可选：从[官方下载页](https://opencode.ai/download)选择 Windows x64 或 ARM64
 
 ### 课上流程
 
@@ -96,21 +96,21 @@
 5. 讲概念：Agent = 模型 + 工具 + 上下文 + 循环；Chat / 补全 / Agent 三层区别
 6. 讲 Prompt 四要素：目标 + 上下文 + 约束 + 验收标准，现场对比烂 Prompt 与好 Prompt
 7. 讲 Skill：`AGENTS.md` 与 `SKILL.md` 的区别，`.opencode/skills/<name>/SKILL.md` 的位置与 `name` 命名规则
-8. 实战：**先 Tab 切计划模式**看方案，再切构建模式改代码，出错用 `/undo` 或 `git checkout .`
+8. 实战：先查看计划和修改范围，再改代码；出错用 `/undo`，或检查差异后谨慎使用 `git restore .`
 9. 现场写一个自己的 `SKILL.md`，验证它能被识别
 
 ### 安全与成本（必讲）
 
 - API Key **不能**进仓库、不能发群里、不能截图外传。
 - 每一轮对话都在消耗 Token、都在花钱，一个话题聊完就开新会话。
-- **改之前先 `git commit`**，改坏了 `git checkout .` 或 `/undo`。
+- **改之前先 `git commit`**；改坏时优先 `/undo`，或先看 `git status`、`git diff` 再用 `git restore .`。
 - 不要相信它说「已经修好了」，一定要自己跑一遍看结果。
 - 只在具体项目目录里启动，不要给它整个磁盘的权限。
 
-### Windows 安装的两个坑
+### Windows 安装的两个提醒
 
-1. **桌面版一键安装、无法选目录**，固定装到 `%LOCALAPPDATA%\Programs\@opencodedesktop`（[官方已明确不改](https://github.com/anomalyco/opencode/issues/26791)）。C 盘紧张的话装完搬到其他盘再建目录联接：`mklink /J`，详见第 5 周讲义第四节。
-2. **`opencode` 命令找不到**：`npm config get prefix` 看全局目录，加进系统 `Path`，然后**重开终端**。
+1. 先确认设备架构：普通 Intel/AMD 电脑通常选 x64，Windows on ARM 设备才选 ARM64。安装目录遵守机房或个人电脑的磁盘规范，不要自行移动程序目录。
+2. **`opencode` 命令找不到**：先重开终端；npm 安装时可用 `npm config get prefix` 查看全局目录，并确认它已加入系统 `Path`。
 
 ## 本学期不教的内容
 

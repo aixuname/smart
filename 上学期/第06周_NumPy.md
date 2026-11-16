@@ -15,6 +15,8 @@
 - 用 `axis` 参数计算「按行」「按列」的统计。
 - **本周产出**：用 NumPy 做一次成绩统计。
 
+> **代码阅读约定**：先读 `#` 后面的注释，预测输出，再运行验证。数组学习最重要的习惯是：每做一次变形或运算，都检查 `shape` 和 `dtype`。
+
 ---
 
 ## 一、为什么需要 NumPy
@@ -39,7 +41,7 @@ NumPy 的两个核心优势：
 1. **不用写循环**——对整组数据直接运算（叫「向量化」）。
 2. **快**——底层是 C 写的，数据量越大差距越明显。后面的 Pandas、PyTorch 全都建立在它上面。
 
-> 装好 NumPy 了吗？没装的运行 `pip install numpy`。Anaconda 里自带，一般不用装。
+> 装好 NumPy 了吗？在当前环境中运行 `python -m pip install numpy`。Anaconda 常用环境通常已经包含 NumPy；先运行 `python -c "import numpy; print(numpy.__version__)"` 检查，避免重复安装。
 
 ## 二、创建数组
 
@@ -62,13 +64,14 @@ print(np.ones((2, 3)))           # 2 行 3 列全是 1
 print(np.full(3, 7))             # [7 7 7]
 print(np.eye(3))                 # 3x3 单位矩阵
 
-# 随机数
-print(np.random.rand(3))         # 3 个 0~1 的随机小数
-print(np.random.randint(0, 100, 5))   # 5 个 0~99 的随机整数
-print(np.random.randn(3))        # 标准正态分布
+# 随机数：创建一个独立的随机数生成器
+rng = np.random.default_rng(42)       # 42 是种子，便于同学复现相同结果
+print(rng.random(3))                  # 3 个 [0, 1) 的随机小数
+print(rng.integers(0, 100, size=5))   # 5 个 [0, 100) 的随机整数
+print(rng.normal(size=3))             # 3 个标准正态分布随机数
 ```
 
-> 固定随机结果方便对照：`np.random.seed(42)` 放在生成随机数之前。
+`default_rng(42)` 中的 42 叫**随机种子**。同一个种子会得到同一串伪随机数，适合教学和调试；真实抽样时可写 `np.random.default_rng()`。
 
 ## 三、数组的属性
 
@@ -84,12 +87,16 @@ print(a.dtype)     # int64      数据类型
 
 `shape` 是最重要的属性，**后面 90% 的报错都和 shape 对不上有关**。
 
+这里可以把数组想成一张表：`shape=(2, 3)` 表示有 2 行、3 列；`ndim=2` 表示需要“行、列”两个坐标才能定位一个元素；`size=6` 等于 `2 × 3`。`dtype` 会因操作系统而显示 `int32` 或 `int64`，两者在本课都属于整数类型，不是报错。
+
 类型转换：
 
 ```python
 print(np.array([1, 2, 3], dtype=float))   # [1. 2. 3.]
 print(a.astype(float))
 ```
+
+`astype` 默认返回一个新数组，不会偷偷修改 `a`。如果后续计算需要保留小数，应把结果保存下来：`a_float = a.astype(float)`。
 
 ## 四、索引与切片
 
@@ -168,6 +175,23 @@ print(scores + 5)                       # 标量也行
 print(scores.mean(axis=1))              # 每个学生的平均分
 ```
 
+广播不是“任何形状都能相加”。NumPy 会从两个 `shape` 的**最右边**开始比较，每一维只有三种情况才兼容：两边相等、其中一边是 1、或其中一边不存在。例如 `(2, 3)` 与 `(3,)` 兼容，后者会被当作每行都使用一次；`(2, 3)` 与 `(2,)` 不兼容。
+
+### 3. 切片可能共享原数组
+
+```python
+original = np.array([10, 20, 30, 40])
+view = original[1:3]   # NumPy 切片通常是“视图”，与原数组共享数据
+view[0] = 999          # 修改 view，也会影响 original[1]
+print(original)        # [ 10 999  30  40]
+
+safe_copy = original[1:3].copy()  # 需要独立数据时显式复制
+safe_copy[0] = 0
+print(original)                  # 原数组不再受影响
+```
+
+这和 Python 列表切片返回新列表不同，是 NumPy 初学者很容易忽略的地方。
+
 ## 七、统计函数与 axis
 
 ```python
@@ -180,11 +204,20 @@ print(scores.mean())           # 全体平均
 print(scores.max(), scores.min())
 print(scores.std())            # 标准差
 
-print(scores.mean(axis=0))     # 按列（每个学生）计算 → [81.67 81. 83.]
-print(scores.mean(axis=1))     # 按行（每门课）计算 → [...]
+print(scores.mean(axis=0))     # 压掉“学生”这一维，得到每门课平均分
+print(scores.mean(axis=1))     # 压掉“科目”这一维，得到每个学生平均分
 ```
 
 > **`axis` 记法**：`axis=0` 是「沿着行往下压」，结果按列；`axis=1` 是「沿着列往右压」，结果按行。记不住就先跑一遍看输出形状，很快就有感觉了。
+
+原数组形状是 `(3, 3)`：
+
+| 表达式 | 被压掉的维度 | 结果含义 | 结果形状 |
+| --- | --- | --- | --- |
+| `mean(axis=0)` | 第 0 维（学生/行） | 每门课的平均分 | `(3,)` |
+| `mean(axis=1)` | 第 1 维（科目/列） | 每个学生的平均分 | `(3,)` |
+
+如果数组是 3 个学生、4 门课的 `(3, 4)`，两种结果形状分别是 `(4,)` 和 `(3,)`。这个方法比死记“横竖”可靠。
 
 ## 八、矩阵运算（为下学期铺垫）
 
@@ -216,16 +249,19 @@ scores = np.array([
 names = ["小明", "小红", "小刚"]
 subjects = ["语文", "数学", "英语", "物理"]
 
+# 不指定 axis：把全部 12 个成绩一起计算
 print("整体平均分：", round(scores.mean(), 2))
 print("最高分：", scores.max(), " 最低分：", scores.min())
 
 print("\n每个学生的平均分：")
+student_means = scores.mean(axis=1)  # 结果长度为 3，与学生数量一致
 for i, name in enumerate(names):
-    print(f"  {name}: {scores[i].mean():.1f}")
+    print(f"  {name}: {student_means[i]:.1f}")
 
 print("\n每门课的平均分：")
+subject_means = scores.mean(axis=0)  # 结果长度为 4，与科目数量一致
 for i, subject in enumerate(subjects):
-    print(f"  {subject}: {scores[:, i].mean():.1f}")
+    print(f"  {subject}: {subject_means[i]:.1f}")
 
 # 每个学生的及格科目数
 passed = (scores >= 60).sum(axis=1)
@@ -234,6 +270,8 @@ print("\n每人及格科目数：", passed)
 # 找出所有不及格的分数
 print("不及格的分数：", scores[scores < 60])
 ```
+
+完整程序的思路是“先一次性算出数组，再把姓名和结果对应输出”。`(scores >= 60)` 先生成与成绩表同形状的布尔数组，`True` 在求和时相当于 1，所以 `.sum(axis=1)` 就是每名学生的及格科目数。
 
 ## 十、常见错误对照表
 
@@ -254,6 +292,35 @@ print("不及格的分数：", scores[scores < 60])
 1. **创建与属性**：创建 1~20 的数组，改成 4 行 5 列，输出它的 `shape`、`size`、`dtype`，并取出第 2 行和最后一列。
 2. **布尔索引**：给一个 50 个元素的随机整数数组（0~100），取出所有大于 60 的元素，并统计它们的个数。
 3. **axis 练习**：造一个 3 行 4 列的随机数组，分别求出按行求和、按列求平均的结果，并说出两者的形状。
+
+<details>
+<summary>展开查看练习参考答案</summary>
+
+```python
+import numpy as np
+
+# 练习 1：arange 的结束值不包含，因此写 21 才能得到 20
+numbers = np.arange(1, 21).reshape(4, 5)
+print(numbers.shape, numbers.size, numbers.dtype)
+print("第 2 行：", numbers[1])       # 人类说第 2 行，索引是 1
+print("最后一列：", numbers[:, -1])
+
+# 练习 2：使用固定种子，方便核对结果
+rng = np.random.default_rng(42)
+random_numbers = rng.integers(0, 101, size=50)  # 101 不包含，最大可能是 100
+selected = random_numbers[random_numbers > 60]
+print("大于 60 的元素：", selected)
+print("数量：", selected.size)
+
+# 练习 3：3 行 4 列，按行求和得到 3 个数，按列平均得到 4 个数
+matrix = rng.integers(0, 10, size=(3, 4))
+row_sums = matrix.sum(axis=1)
+column_means = matrix.mean(axis=0)
+print("按行求和：", row_sums, row_sums.shape)          # (3,)
+print("按列平均：", column_means, column_means.shape)  # (4,)
+```
+
+</details>
 
 ## 十二、课后作业
 
@@ -301,7 +368,7 @@ print("不及格的分数：", scores[scores < 60])
 
 # ---- 0. 安装和导入 ----
 # 用 Anaconda 的话，numpy 一般已经装好了
-# 没有的话在终端执行：pip install numpy
+# 没有的话在终端执行：python -m pip install numpy
 import numpy as np          # 惯例：导入并起别名 np
 
 # ---- 1. 创建数组 ----

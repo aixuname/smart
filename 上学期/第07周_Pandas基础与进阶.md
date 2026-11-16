@@ -17,6 +17,8 @@
 - 用 `merge` 把两张表按一个共同列拼起来。
 - **本周产出**：读一份 CSV，完成「检查 → 筛选 → 分组统计」并输出一张汇总表。
 
+> **代码阅读约定**：本周不要只背函数名。每段代码都先回答三个问题：输入表有多少行列？这一行返回新表还是修改原表？运行后行数、列数或数据类型发生了什么？
+
 ---
 
 ## 一、Pandas 是什么
@@ -44,6 +46,8 @@ import numpy as np
 
 **`DataFrame` 是主角，`Series` 是它的一列。**
 
+还要分清三个概念：**列名**说明每列是什么，**索引**标识每一行，**值**才是单元格中的数据。索引不一定是 `0、1、2`，也可能是学号或日期，因此后面才需要区分 `loc` 和 `iloc`。
+
 ## 二、创建与读取
 
 ```python
@@ -57,6 +61,8 @@ print(df)
 ```
 
 最左边 `0 1 2 3` 是**索引（index）**，Pandas 自动加的。
+
+字典的每个键会成为列名，每个列表会成为这一列的数据，并且各列长度必须相同。可以用 `type(df)` 和 `type(df["name"])` 分别观察 `DataFrame` 与 `Series`。
 
 真实工作里第一行代码永远是读文件：
 
@@ -74,10 +80,12 @@ df = pd.read_csv(
 ## 三、拿到数据先做三件事
 
 ```python
-df.head()        # 前 5 行，看看长什么样
-df.info()        # 多少行、每列什么类型、有没有缺失
-df.describe()    # 数值列的统计摘要：数量/均值/标准差/最大最小
+print(df.head())      # 前 5 行，确认列名和数据是否读对
+df.info()             # 直接把结构信息打印到屏幕；不要再套 print
+print(df.describe())  # 数值列统计：数量、均值、标准差、四分位数等
 ```
+
+`df.info()` 的返回值是 `None`，因此写 `print(df.info())` 会在信息末尾多打印一个 `None`。这不是数据内容，也不是报错。
 
 再补充几个常用的：
 
@@ -113,6 +121,8 @@ print(df.loc[0, "name"]) # 指定行列
 | 依据 | 索引**标签** | 位置**序号** |
 | 切片含尾吗 | **含** | **不含** |
 
+例如索引是 `[101, 103, 108]` 时，`df.loc[103]` 找标签 103，而 `df.iloc[1]` 找位置为 1 的第二行；两者碰巧可能指向同一行，但思路完全不同。
+
 ### 筛选
 
 ```python
@@ -130,7 +140,7 @@ print(df[~(df["city"] == "北京")])                       # 取反
 df.sort_values("score")                    # 升序
 df.sort_values("score", ascending=False)   # 降序
 df.sort_values(["city", "score"])          # 多列排序
-df.sort_values("score").head(3)            # 成绩最高的 3 个
+df.sort_values("score", ascending=False).head(3)  # 先降序，再取成绩最高的 3 个
 ```
 
 > `sort_values` **返回新表、不改原表**（和列表的 `sort()` 不同）。
@@ -144,6 +154,8 @@ df["score"] = df["score"] - 1                                       # 改整列
 df.loc[0, "score"] = 100                                            # 改一格
 df.rename(columns={"score": "成绩"}, inplace=True)                   # 改列名
 ```
+
+除非明确需要修改原表，本讲义更推荐把结果赋给新变量，例如 `renamed_df = df.rename(...)`。这样便于比较修改前后，也能减少 `inplace=True` 带来的误操作。
 
 ## 六、`groupby`：分组统计（本周重点）
 
@@ -179,6 +191,15 @@ print(df.loc[df.groupby("city")["score"].idxmax()])
 print(df.groupby("city")["score"].mean().reset_index())
 ```
 
+以 `groupby + agg` 为例，Pandas 的执行过程不是逐行打印，而是：
+
+1. 根据 `city` 找出每个分组包含哪些行。
+2. 从各组中只取 `score` 列。
+3. 对每组分别运行 `mean/max/min/count`。
+4. 把每组的结果组合成一张新表。
+
+`count` 只统计非缺失值；若想统计每组原始行数，应使用 `.size()`。有缺失值时两者可能不同。
+
 > 数学穿插：这里算的平均值和标准差（`.std()`），就是统计学里的**均值**和**方差**。均值代表「中心在哪」，标准差代表「数据散不散」——同样一组平均分，标准差小的班级成绩更整齐。
 
 ## 七、缺失值：先看清楚，再决定怎么办
@@ -193,6 +214,16 @@ df.dropna()                          # 有缺失就删这行
 df.dropna(subset=["score"])          # 只在 score 缺失时删
 df["score"] = df["score"].fillna(df["score"].mean())   # 用均值填
 df["city"] = df["city"].fillna("未知")                  # 文字列填「未知」
+```
+
+上面的 `dropna()` 和前两个 `fillna()` 示例如果没有赋值，只是返回处理后的新表。真正要保留结果，应写成 `df = df.dropna(...)` 或 `df["score"] = ...`。处理前先记录数量，处理后再核对：
+
+```python
+missing_before = df["score"].isna().sum()       # 填充前缺多少条
+fill_value = df["score"].median()               # 中位数不容易被极端值拉偏
+df["score"] = df["score"].fillna(fill_value)   # 保存填充后的结果
+missing_after = df["score"].isna().sum()        # 应当变成 0
+print(f"score 填充 {missing_before - missing_after} 条，填充值为 {fill_value}")
 ```
 
 | 情况 | 做法 |
@@ -211,6 +242,20 @@ students = pd.DataFrame({"name": ["小明", "小红"], "class_id": [1, 2]})
 classes  = pd.DataFrame({"class_id": [1, 2], "class_name": ["一班", "二班"]})
 
 print(students.merge(classes, on="class_id", how="left"))
+```
+
+`on="class_id"` 指定两张表共同的连接键。连接前应检查键是否重复，否则可能出现“一行突然变成多行”：
+
+```python
+print(students["class_id"].duplicated().sum())  # 学生表中班级号可以重复
+print(classes["class_id"].duplicated().sum())   # 班级表中班级号应当唯一
+
+result = students.merge(
+    classes,
+    on="class_id",
+    how="left",
+    validate="many_to_one"  # 多名学生对应一个班级；关系不符时直接报错
+)
 ```
 
 | `how` | 意思 |
@@ -232,7 +277,7 @@ df = pd.read_csv("students.csv", encoding="utf-8")
 
 # 2. 检查
 print("形状：", df.shape)
-print(df.info())
+df.info()  # info 会自行输出，返回值是 None
 print("缺失：\n", df.isna().sum())
 
 # 3. 清洗
@@ -257,6 +302,8 @@ summary.to_csv("summary.csv", encoding="utf-8-sig")
 
 > `encoding="utf-8-sig"` 是给 Excel 用的——不加的话用 Excel 打开可能中文乱码。这个小细节很多人被坑过。
 
+这段完整程序按“读取—检查—清洗—分析—导出”分层。每一步都输出可核对的信息：清洗阶段报告删除行数，分析阶段显示汇总表，导出阶段生成可交付文件。若结果不对，就能迅速定位是哪一步开始变化。
+
 ## 十、常见错误对照表
 
 | 报错 / 现象 | 原因 | 解决 |
@@ -279,6 +326,44 @@ summary.to_csv("summary.csv", encoding="utf-8-sig")
 3. 筛选成绩 ≥80 且年龄 <20 的同学，按成绩降序排。
 4. 按城市分组，算出每组人数、平均分、最高分，并按平均分降序输出。
 5. 手工把那 6 行里的两个成绩改成空值，统计缺失并说明你选择删还是填、为什么。
+
+<details>
+<summary>展开查看课堂练习参考代码</summary>
+
+```python
+import numpy as np
+import pandas as pd
+
+# 1. 创建 6 行数据；np.nan 表示缺失值
+practice = pd.DataFrame({
+    "name": ["小明", "小红", "小刚", "小美", "小林", "小周"],
+    "city": ["北京", "上海", "北京", "广州", "上海", "广州"],
+    "age": [18, 19, 20, 18, 19, 21],
+    "score": [92, 85, 77, 88, np.nan, np.nan]
+})
+print(practice.head(3))
+practice.info()
+
+# 2. 两层方括号返回 DataFrame；iloc 的结束位置 4 不包含
+print(practice[["name", "score"]])
+print(practice.iloc[1:4])  # 第 2～4 行，对应位置 1、2、3
+
+# 3. 多条件分别加括号，并用 & 连接
+selected = practice[(practice["score"] >= 80) & (practice["age"] < 20)]
+print(selected.sort_values("score", ascending=False))
+
+# 4. count 不包含缺失成绩，mean 和 max 默认跳过 NaN
+summary = practice.groupby("city")["score"].agg(["count", "mean", "max"])
+print(summary.sort_values("mean", ascending=False))
+
+# 5. 此例只有 6 行，直接删除会损失三分之一数据，因此用中位数填充并记录数量
+missing_count = practice["score"].isna().sum()
+median_score = practice["score"].median()
+practice["score"] = practice["score"].fillna(median_score)
+print(f"用中位数 {median_score} 填充了 {missing_count} 条成绩")
+```
+
+</details>
 
 ## 十二、课后作业
 
